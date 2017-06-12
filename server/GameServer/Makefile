@@ -1,5 +1,5 @@
 
-THIRD_LIB_ROOT ?= ../3rd/
+THIRD_LIB_ROOT ?= ../../3rd/
 
 SKYNET_ROOT ?= $(THIRD_LIB_ROOT)skynet/
 include $(SKYNET_ROOT)platform.mk
