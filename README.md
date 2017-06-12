@@ -21,6 +21,7 @@
 * make && make install
 
 ### 3rd/skynet
+make linux
 [参考文档](https://github.com/cloudwu/skynet)。
 
 ## 安装
