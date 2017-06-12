@@ -1,0 +1,21 @@
+[submodule "3rd/skynet"]
+	path = 3rd/skynet
+	url = git@github.com:cloudwu/skynet.git
+	branch = lua53
+[submodule "3rd/redis"]
+	path = 3rd/redis
+	url = git@github.com:antirez/redis.git
+	branch = 2.8
+[submodule "3rd/openssl"]
+	path = 3rd/openssl
+	url = git@github.com:openssl/openssl.git
+	branch = 1.0.2-aead
+[submodule "client/3rd/sproto-Csharp"]
+	path = client/3rd/sproto-Csharp
+	url = https://github.com/lvzixun/sproto-Csharp.git
+[submodule "client/3rd/sproto-Unity"]
+	path = client/3rd/sproto-Unity
+	url = https://github.com/m2q1n9/sproto-Unity.git
+[submodule "client/3rd/sprotodump"]
+	path = client/3rd/sprotodump
+	url = https://github.com/lvzixun/sprotodump.git
