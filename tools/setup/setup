@@ -11,9 +11,9 @@ then
 	mkdir $TARGET
 fi
 
-${BASEDIR}/redis/setup ${TARGET}
+sudo bash ${BASEDIR}/redis/setup ${TARGET}
 
-cp ${BASEDIR}/script/* ${TARGET}
+sudo cp ${BASEDIR}/script/* ${TARGET}
 
 echo "setup finished."
 
