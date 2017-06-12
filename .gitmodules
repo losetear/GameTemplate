@@ -4,4 +4,6 @@
 [submodule "3rd/redis"]
 	path = 3rd/redis
 	url = https://github.com/antirez/redis.git
-	branch = 4.0
+[submodule "3rd/openssl"]
+	path = 3rd/openssl
+	url = https://github.com/openssl/openssl.git
