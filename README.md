@@ -6,17 +6,9 @@
 
 ## 编译依赖
 ### 3rd/openssl 
-程序中用到了openssl中的crypto库，请将crypto编译成**静态库**。 [参考文档](https://wiki.openssl.org/index.php/Compilation_and_Installation)。  
-对于32位系统，执行 "./config 386"   
-对于64linux系统，可尝试用命令 "./Configure linux-x86_64 no-shared -fPIC; make"进行编译。   
-如果编译出错，请自行google解决。
+[参考文档](https://wiki.openssl.org/index.php/Compilation_and_Installation)。  
 
-下载编译openssl 
-下载地址：https://www.openssl.org/source/openssl-1.0.1t.tar.gz 
-* tar -xzvf ./openssl-1.0.1t.tar.gz 
-移到第三方中 
-* mv openssl-1.0.1t/* some-mmorpg/3rd/openssl 
-* cd some-mmorpg/3rd/openssl 
+对于64linux系统，可尝试用命令 "./Configure linux-x86_64 no-shared -fPIC; make"进行编译。   
 * 对于32位系统，执行 "./config 386"   
 * make && make install
 
