@@ -1,0 +1,19 @@
+ManifestFileVersion: 0
+CRC: 3179617017
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: lua.lijv
+      Dependencies: {}
+    Info_1:
+      Name: lua/info.lijv
+      Dependencies: {}
+    Info_2:
+      Name: lua/manager.lijv
+      Dependencies: {}
+    Info_3:
+      Name: lua/util.lijv
+      Dependencies: {}
+    Info_4:
+      Name: lua/xlua.lijv
+      Dependencies: {}

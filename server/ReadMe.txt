@@ -1,0 +1,2 @@
+GameServer:游戏逻辑服务器
+AssetbundleRes:更新服务器，包括lua热更和资源更新，都需要打包成统一格式

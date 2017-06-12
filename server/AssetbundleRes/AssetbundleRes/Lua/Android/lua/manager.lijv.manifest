@@ -1,0 +1,17 @@
+ManifestFileVersion: 0
+CRC: 2172819253
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 51ece9c9bdd7fb69d501f1dba6c5297e
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 1033bf7ddfd4c6d43e7a6382c0a0a61a
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+Assets:
+- Assets/LuaTextFile/manager/beholder.lua.txt
+- Assets/LuaTextFile/manager/GameManager.lua.txt
+Dependencies: []

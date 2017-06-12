@@ -1,0 +1,14 @@
+#versionNum,1
+#versionDate,2017/5/3 17:06:51
+Android/Android,3b0331c1a466e37adc66acdddd2dd6c8
+Android/Android.manifest,8d8caf75f8307c8df412d96ceb8f0d9d
+Android/lua.lijv,859e3d9bb091069cffc5d7b8ffe0562f
+Android/lua.lijv.manifest,0c251f5b8cf93ddf00015b75200155e7
+Android/lua/info.lijv,7260fead753a364547ebb29b472c754e
+Android/lua/info.lijv.manifest,55c24e7b8aa846500f5edf7ec57080be
+Android/lua/manager.lijv,6901a602be379deb2e48098133970c4d
+Android/lua/manager.lijv.manifest,6403799813ec624593dd5fabd06a63ca
+Android/lua/util.lijv,762b2adfda8819e2283a6990da813c21
+Android/lua/util.lijv.manifest,b9057d2203f6616568461a23af58a8b5
+Android/lua/xlua.lijv,38e9c885fbc9e2a5931951925781d185
+Android/lua/xlua.lijv.manifest,e612fd9ead4db89c726c8632fb0c94b1

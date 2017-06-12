@@ -1,0 +1,3 @@
+{
+"ar_dev":{"Name":"GameTemplate_dev","ResUrl":"http://192.168.1.10:3333/AssetbundleRes/"}
+}
