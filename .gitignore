@@ -11,3 +11,6 @@
 /*.userprefs
 /*.pidb
 /*.booproj
+/art/Arts/*.csproj
+/art/Arts/*.sln
+/art/Arts/*.suo
