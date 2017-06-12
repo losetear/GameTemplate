@@ -1,0 +1,19 @@
+ManifestFileVersion: 0
+CRC: 1002074786
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 25379696bf530c25c6de453ba762dc11
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 1033bf7ddfd4c6d43e7a6382c0a0a61a
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+Assets:
+- Assets/LuaTextFile/xlua/profiler.lua.txt
+- Assets/LuaTextFile/xlua/cs_coroutine.lua.txt
+- Assets/LuaTextFile/xlua/util.lua.txt
+- Assets/LuaTextFile/xlua/memory.lua.txt
+Dependencies: []

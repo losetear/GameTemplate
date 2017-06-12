@@ -1,0 +1,6 @@
+#,0
+#
+Android/Android,7864c96317155a6e301142ca912dd7a2
+Android/Android.manifest,4b7d66f558c61d7e48d43cc321873b99
+Android/ui.lijv,1e824c1421fe7878d6b60b01693e8104
+Android/ui.lijv.manifest,a585ee1f73d1610acca74bfac4ea8eb9
