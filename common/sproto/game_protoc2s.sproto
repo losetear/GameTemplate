@@ -1,0 +1,73 @@
+syncclientlag 100 {
+	request {
+		clienttime 0 : integer
+	}
+	response {
+		clienttime 0 : integer
+	}
+}
+
+syncserverlag 101 {
+	request {
+		ping 0 : integer
+	}
+}
+
+character_list 1000 {
+	response {
+		character 0 : *character_overview(id)
+	}
+}
+
+character_create 1001 {
+	request {
+		character 0 : general
+	}
+
+	response {
+		character 0 : character_overview
+		errno 1 : integer
+	}
+}
+
+character_pick 1002 {
+	request {
+		id 0 : integer 
+	}
+
+	response {
+		character 0 : character
+		errno 1 : integer
+	}
+}
+
+map_ready 1003 {
+}
+
+move 1004 {
+	request {
+		pos 0 : position
+	}
+	response {
+		pos 0 : position
+	}
+}
+
+combat 1005 {
+	request {
+		target 0 : integer
+	}
+	response {
+		target 0 : integer
+		damage 1 : integer
+	}
+}
+
+fullmove 1006 {
+	request {
+		move 0 : movementfull
+	}
+	response {
+		pos 0 : position
+	}
+}

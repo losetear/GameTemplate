@@ -1,0 +1,41 @@
+aoi_add 2000 {
+	request {
+		character 0 : character_aoi
+	}
+	response {
+		wantmore 0 : boolean
+	}
+}
+
+aoi_remove 2001 {
+	request {
+		character 0 : integer
+	}
+}
+
+aoi_update_move 2002 {
+	request {
+		character 0 : character_aoi_move
+	}
+	response {
+		wantmore 0 : boolean
+	}
+}
+
+aoi_update_attribute 2003 {
+	request {
+		character 0 : character_aoi_attribute
+	}
+	response {
+		wantmore 0 : boolean
+	}
+}
+
+aoi_update_move_full 2004 {
+	request {
+		movefull 0 : movementfull
+	}
+	response {
+		wantmore 0 : boolean
+	}
+}
