@@ -243,8 +243,8 @@ namespace GameTemplate
 
         public static void TurnGrayBuild(GameObject go)
         {
-            go.transform.FindChild("weikaiqi").gameObject.SetActive(true);
-            go.transform.FindChild("kaiqi").gameObject.SetActive(false);
+            go.transform.Find("weikaiqi").gameObject.SetActive(true);
+            go.transform.Find("kaiqi").gameObject.SetActive(false);
             GameUtil.ResetSelfShaders(go, "Custom/Gray_Diffuse");
 
             //这个着色器需要第二张贴图
@@ -267,8 +267,8 @@ namespace GameTemplate
 
         public static void TurnLightBuild(GameObject go)
         {
-            go.transform.FindChild("weikaiqi").gameObject.SetActive(false);
-            go.transform.FindChild("kaiqi").gameObject.SetActive(true);
+            go.transform.Find("weikaiqi").gameObject.SetActive(false);
+            go.transform.Find("kaiqi").gameObject.SetActive(true);
             GameUtil.ResetSelfShaders(go, "Mobile/Diffuse");
         }
 

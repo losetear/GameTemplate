@@ -2,9 +2,10 @@
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
-using ar.platform;
 using CSObjectWrapEditor;
+using GameTemplate;
 using UnityEditor;
 using UnityEngine;
 
@@ -127,7 +128,7 @@ public class BuildTool : ScriptableObject
         //设置autographics
         PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.iOS, true);
         //设置编译符
-        PlayerSettings.bundleIdentifier = BundleIdentifier + "." + versionName;
+        PlayerSettings.applicationIdentifier = BundleIdentifier + "." + versionName;
         PlayerSettings.bundleVersion = VersionString;
         PlayerSettings.iOS.buildNumber = VersionString;
         PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.iOS, Define_Natcam_Ios + scriptDefine);
@@ -207,7 +208,7 @@ public class BuildTool : ScriptableObject
         //设置autographics
         PlayerSettings.SetUseDefaultGraphicsAPIs(BuildTarget.Android, true);
         //设置编译符
-        PlayerSettings.bundleIdentifier = BundleIdentifier + "." + versionName;
+        PlayerSettings.applicationIdentifier = BundleIdentifier + "." + versionName;
         PlayerSettings.bundleVersion = VersionString;
         PlayerSettings.Android.bundleVersionCode = VersionCode;
         PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, Define_Natcam_Android + scriptDefine);
@@ -462,6 +463,93 @@ public class BuildTool : ScriptableObject
             default:
                 return null;
         }
+    }
+    #endregion
+
+
+    #region Des加密
+    private static string _key = "td.matrixgame.cn.*#FDlk12";
+    public static string Key
+    {
+        get
+        {
+            return _key;
+        }
+        set
+        {
+            _key = value;
+        }
+    }
+    public static string DesEncrypt(string strEncryptString)
+    {
+        StringBuilder strRetValue = new StringBuilder();
+
+        try
+        {
+            byte[] keyBytes = Encoding.UTF8.GetBytes(_key.Remove(0, _key.Length - 8));
+            byte[] keyIV = keyBytes;
+            byte[] inputByteArray = Encoding.UTF8.GetBytes(strEncryptString);
+            DESCryptoServiceProvider provider = new DESCryptoServiceProvider
+            {
+                Mode = CipherMode.ECB,//兼容其他语言的Des加密算法  
+                Padding = PaddingMode.Zeros                //自动补0
+            };
+
+            MemoryStream mStream = new MemoryStream();
+            CryptoStream cStream = new CryptoStream(mStream, provider.CreateEncryptor(keyBytes, keyIV), CryptoStreamMode.Write);
+            cStream.Write(inputByteArray, 0, inputByteArray.Length);
+            cStream.FlushFinalBlock();
+
+            //组织成16进制字符串            
+            foreach (byte b in mStream.ToArray())
+            {
+                strRetValue.AppendFormat("{0:X2}", b);
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        return strRetValue.ToString();
+    }
+
+    public static string DesDecrypt(string strDecryptString)
+    {
+        string strRetValue = "";
+
+        try
+        {
+            byte[] keyBytes = Encoding.UTF8.GetBytes(_key.Remove(0, _key.Length - 8));
+            byte[] keyIV = keyBytes;
+
+            //16进制转换为byte字节
+            byte[] inputByteArray = new byte[strDecryptString.Length / 2];
+            for (int x = 0; x < strDecryptString.Length / 2; x++)
+            {
+                int i = (Convert.ToInt32(strDecryptString.Substring(x * 2, 2), 16));
+                inputByteArray[x] = (byte)i;
+            }
+
+            DESCryptoServiceProvider provider = new DESCryptoServiceProvider
+            {
+                Mode = CipherMode.ECB,//兼容其他语言的Des加密算法  
+                Padding = PaddingMode.Zeros//自动补0  
+            };
+
+            MemoryStream mStream = new MemoryStream();
+            CryptoStream cStream = new CryptoStream(mStream, provider.CreateDecryptor(keyBytes, keyIV), CryptoStreamMode.Write);
+            cStream.Write(inputByteArray, 0, inputByteArray.Length);
+            cStream.FlushFinalBlock();
+
+            strRetValue = Encoding.UTF8.GetString(mStream.ToArray()).TrimEnd('\0');
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+
+        return strRetValue;
     }
     #endregion
 

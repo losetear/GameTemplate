@@ -134,7 +134,7 @@ namespace GameTemplate
                 var list = new List<Type>
                 {
                     typeof (Light),
-                    typeof (LightmappingMode),
+                    typeof (LightmapBakeType),
                     typeof (object),
                     typeof (Object),
                     typeof (Vector2),

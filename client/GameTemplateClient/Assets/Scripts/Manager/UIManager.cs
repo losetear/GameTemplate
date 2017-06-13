@@ -37,7 +37,7 @@ namespace GameTemplate
             GameObject uiRoot = Instantiate(Resources.Load("UI/UIRoot")) as GameObject;
             uiRoot.transform.position = new Vector3(10000, 10000, 10000);
             DontDestroyOnLoad(uiRoot);
-            _mainUi = uiRoot.transform.FindChild("Canvas");
+            _mainUi = uiRoot.transform.Find("Canvas");
         }
 
         public void SetCamSolid()
