@@ -23,3 +23,4 @@ var/
 /client/GameTemplateClient/*.csproj
 /client/GameTemplateClient/*.sln
 /client/GameTemplateClient/.vs
+/common/sproto/SprotoCS/*.cs
