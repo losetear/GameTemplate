@@ -21,6 +21,7 @@ namespace XLua
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
 
     public class LuaEnv : IDisposable
     {
@@ -48,7 +49,7 @@ namespace XLua
         internal object luaEnvLock = new object();
 #endif
 
-        const int LIB_VERSION_EXPECT = 100;
+        const int LIB_VERSION_EXPECT = 101;
 
         public LuaEnv()
         {
@@ -135,11 +136,11 @@ namespace XLua
                 LuaAPI.xlua_pushasciistring(rawL, "xlua_main_thread");
                 LuaAPI.lua_pushthread(rawL);
                 LuaAPI.lua_rawset(rawL, LuaIndexes.LUA_REGISTRYINDEX);
-#if !XLUA_GENERAL
+#if !XLUA_GENERAL && (!UNITY_WSA || UNITY_EDITOR)
                 translator.Alias(typeof(Type), "System.MonoType");
 #endif
 
-                if (0 != LuaAPI.xlua_getglobal(rawL, "_G"))
+            if (0 != LuaAPI.xlua_getglobal(rawL, "_G"))
                 {
                     throw new Exception("call xlua_getglobal fail!");
                 }
@@ -182,7 +183,7 @@ namespace XLua
             }
         }
 
-        public T LoadString<T>(string chunk, string chunkName = "chunk", LuaTable env = null)
+        public T LoadString<T>(byte[] chunk, string chunkName = "chunk", LuaTable env = null)
         {
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnvLock)
@@ -195,7 +196,7 @@ namespace XLua
                 var _L = L;
                 int oldTop = LuaAPI.lua_gettop(_L);
 
-                if (LuaAPI.luaL_loadbuffer(_L, chunk, chunkName) != 0)
+                if (LuaAPI.xluaL_loadbuffer(_L, chunk, chunk.Length, chunkName) != 0)
                     ThrowExceptionFromError(oldTop);
 
                 if (env != null)
@@ -213,12 +214,18 @@ namespace XLua
 #endif
         }
 
+        public T LoadString<T>(string chunk, string chunkName = "chunk", LuaTable env = null)
+        {
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(chunk);
+            return LoadString<T>(bytes, chunkName, env);
+        }
+
         public LuaFunction LoadString(string chunk, string chunkName = "chunk", LuaTable env = null)
         {
             return LoadString<LuaFunction>(chunk, chunkName, env);
         }
 
-        public object[] DoString(string chunk, string chunkName = "chunk", LuaTable env = null)
+        public object[] DoString(byte[] chunk, string chunkName = "chunk", LuaTable env = null)
         {
 #if THREAD_SAFT || HOTFIX_ENABLE
             lock (luaEnvLock)
@@ -227,7 +234,7 @@ namespace XLua
                 var _L = L;
                 int oldTop = LuaAPI.lua_gettop(_L);
                 int errFunc = LuaAPI.load_error_func(_L, errorFuncRef);
-                if (LuaAPI.luaL_loadbuffer(_L, chunk, chunkName) == 0)
+                if (LuaAPI.xluaL_loadbuffer(_L, chunk, chunk.Length, chunkName) == 0)
                 {
                     if (env != null)
                     {
@@ -250,6 +257,12 @@ namespace XLua
 #if THREAD_SAFT || HOTFIX_ENABLE
             }
 #endif
+        }
+
+        public object[] DoString(string chunk, string chunkName = "chunk", LuaTable env = null)
+        {
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(chunk);
+            return DoString(bytes, chunkName, env);
         }
 
         private void AddSearcher(LuaCSFunction searcher, int index)
@@ -350,6 +363,7 @@ namespace XLua
 
         public void Dispose()
         {
+            FullGc();
             System.GC.Collect();
             System.GC.WaitForPendingFinalizers();
 
@@ -516,7 +530,7 @@ namespace XLua
                     xlua.access(cs, cflag .. '__Hitfix0_'..k, f) -- at least one
                     pcall(function()
                         for i = 1, 99 do
-                            xlua.access(cs, '__Hitfix'..i..'_'..k, f)
+                            xlua.access(cs, cflag .. '__Hitfix'..i..'_'..k, f)
                         end
                     end)
                 end
@@ -538,7 +552,7 @@ namespace XLua
 
         public void AddBuildin(string name, LuaCSFunction initer)
         {
-            if (!initer.Method.IsStatic || !Attribute.IsDefined(initer.Method, typeof(MonoPInvokeCallbackAttribute)))
+            if (!Utils.IsStaticPInvokeCSFunction(initer))
             {
                 throw new Exception("initer must be static and has MonoPInvokeCallback Attribute!");
             }

@@ -23,6 +23,40 @@ local friendlyNameMap = {
 	["System.Void"] = "void",
 }
 
+local csKeywords = {
+"abstract", "as", "base", "bool",
+"break", "byte", "case", "catch",
+"char", "checked", "class", "const",
+"continue", "decimal", "default", "delegate",
+"do", "double", "else", "enum",
+"event", "explicit", "extern", "false",
+"finally", "fixed", "float", "for",
+"foreach", "goto", "if", "implicit",
+"in", "int", "interface",
+"internal", "is", "lock", "long",
+"namespace", "new", "null", "object",
+"operator", "out", "override",
+"params", "private", "protected", "public",
+"readonly", "ref", "return", "sbyte",
+"sealed", "short", "sizeof", "stackalloc",
+"static", "string", "struct", "switch",
+"this", "throw", "true", "try",
+"typeof", "uint", "ulong", "unchecked",
+"unsafe", "ushort", "using", "virtual",
+"void", "volatile", "while"
+}
+
+for _, kw in ipairs(csKeywords) do
+    csKeywords[kw] = '@'..kw
+end
+for i = 1, #csKeywords do
+    csKeywords[i] = nil
+end
+
+function UnK(symbol)
+    return csKeywords[symbol] or symbol
+end
+
 local fixChecker = {
     --["System.String"] = "LuaAPI.lua_isstring",
 	["System.Boolean"] = "LuaTypes.LUA_TBOOLEAN == LuaAPI.lua_type",
@@ -198,7 +232,6 @@ function GetCheckStatement(t, idx, is_v_params)
 end
 
 local delegateType = typeof(CS.System.Delegate)
-
 local ExtensionAttribute = typeof(CS.System.Runtime.CompilerServices.ExtensionAttribute)
 function MethodParameters(method)
     if not method:IsDefined(ExtensionAttribute, false) then
@@ -286,7 +319,7 @@ end
 function GetPushStatement(t, variable, is_v_params)
     if is_v_params then
 	    local item_push = GetPushStatement(t:GetElementType(), variable..'[__gen_i]')
-		return 'for (int __gen_i = 0; __gen_i < ' .. variable .. '.Length; ++__gen_i) ' .. item_push
+		return 'if ('.. variable ..' != null)  { for (int __gen_i = 0; __gen_i < ' .. variable .. '.Length; ++__gen_i) ' .. item_push .. '; }'
 	end
     
     local testname = getSafeFullName(t)
@@ -317,7 +350,7 @@ function CallNeedTranslator(overload, isdelegate)
 	local ret_type_name = getSafeFullName(overload.ReturnType)
     if not notranslator[ret_type_name] then return true end 
     local parameters = overload:GetParameters()
-    return IfAny(overload:GetParameters(), function(parameter) return not notranslator[parameter.ParameterType.FullName:gsub("&", "")] end)
+    return IfAny(overload:GetParameters(), function(parameter) return not notranslator[getSafeFullName(parameter.ParameterType)] end)
 end
 
 function MethodCallNeedTranslator(method)

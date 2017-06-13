@@ -1,10 +1,12 @@
 ## 使用方式
 
-1、这个特性默认是关闭的，需要添加HOTFIX_ENABLE宏打开（在Unity3D的File->Build Setting->Scripting Define Symbols下添加）。使用该特性的切记build手机版本时不要忘记了！
+1、添加HOTFIX_ENABLE宏打开该特性（在Unity3D的File->Build Setting->Scripting Define Symbols下添加）。编辑器、各手机平台这个宏要分别设置！如果是自动化打包，要注意在代码里头用API设置的宏是不生效的，需要在编辑器设置。
 
-2、目前版本依赖代码生成 ，热补丁需要执行XLua/Generate Code才能正常运行。（建议的开发方式是平时不打开HOTFIX_ENABLE，这样不用生成代码，开发更便捷，build手机版本或者要在编译器下开发补丁时打开HOTFIX_ENABLE）
+（建议平时开发业务代码不打开HOTFIX_ENABLE，只在build手机版本或者要在编译器下开发补丁时打开HOTFIX_ENABLE）
 
-3、编辑器下需要执行"XLua/Hotfix Inject In Editor"，如果打印“hotfix inject finish!”或者“had injected!”，那表示已经注入成功，可以进行补丁调试（手机版本打包无需该步骤）；
+2、执行XLua/Generate Code菜单。
+
+3、注入，构建手机包这个步骤会在构建时自动进行，编辑器下开发补丁需要手动执行"XLua/Hotfix Inject In Editor"菜单。注入成功会打印“hotfix inject finish!”或者“had injected!”。
 
 ## 内嵌模式
 
@@ -72,6 +74,24 @@ public static class HotfixCfg
     }
 }
 ~~~
+
+## Hotfix Flag
+
+Hotfix标签可以设置一些标志位对生成代码及插桩定制化
+
+* Stateless       ：Stateless和Stateful的区别请看下下节
+* Stateful        ：同上
+* ValueTypeBoxing ：值类型的适配delegate会收敛到object，好处是代码量更少，不好的是值类型会产生boxing及gc，适用于对安装包敏感的业务
+* IgnoreProperty  ：不对属性注入及生成适配代码
+* IgnoreNotPublic ：不对非public的方法注入及生成适配代码
+* Inline          ：不生成适配delegate，直接在函数体注入处理代码
+
+## 使用建议
+
+* 对所有较大可能变动的类型加上Hotfix标识；
+* 建议用反射找出所有函数参数、字段、属性、事件涉及的delegate类型，标注CSharpCallLua；
+* 业务代码、引擎API、系统API，需要在Lua补丁里头高性能访问的类型，加上LuaCallCSharp；
+* 引擎API、系统API可能被代码剪裁调（C#无引用的地方都会被剪裁），如果觉得可能会新增C#代码之外的API调用，这些API所在的类型要么加LuaCallCSharp，要么加ReflectionUse；
 
 ## Stateless和Stateful
 

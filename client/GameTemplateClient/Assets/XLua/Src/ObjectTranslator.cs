@@ -157,10 +157,10 @@ namespace XLua
                 throw new Exception("top change, before:" + top + ", after:" + LuaAPI.lua_gettop(L));
             }
 
-            foreach (var nested_type in type.GetNestedTypes())
+            foreach (var nested_type in type.GetNestedTypes(BindingFlags.Public))
             {
-                if ((!nested_type.IsAbstract && typeof(Delegate).IsAssignableFrom(nested_type))
-                    || nested_type.IsGenericTypeDefinition)
+                if ((!nested_type.IsAbstract() && typeof(Delegate).IsAssignableFrom(nested_type))
+                    || nested_type.IsGenericTypeDefinition())
                 {
                     continue;
                 }
@@ -182,9 +182,21 @@ namespace XLua
 
         public int cacheRef;
 
+        void addAssemblieByName(IEnumerable<Assembly> assemblies_usorted, string name)
+        {
+            foreach(var assemblie in assemblies_usorted)
+            {
+                if (assemblie.FullName.StartsWith(name) && !assemblies.Contains(assemblie))
+                {
+                    assemblies.Add(assemblie);
+                    break;
+                }
+            }
+        }
+
         public ObjectTranslator(LuaEnv luaenv,RealStatePtr L)
 		{
-#if XLUA_GENERAL
+#if XLUA_GENERAL  || (UNITY_WSA && !UNITY_EDITOR)
             var dumb_field = typeof(ObjectTranslator).GetField("s_gen_reg_dumb_obj", BindingFlags.Static| BindingFlags.DeclaredOnly | BindingFlags.NonPublic);
             if (dumb_field != null)
             {
@@ -193,12 +205,24 @@ namespace XLua
 #endif
             assemblies = new List<Assembly>();
 
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies())
+#if UNITY_WSA && !UNITY_EDITOR
+            var assemblies_usorted = Utils.GetAssemblies();
+#else
+            assemblies.Add(Assembly.GetExecutingAssembly());
+            var assemblies_usorted = AppDomain.CurrentDomain.GetAssemblies();
+#endif
+            addAssemblieByName(assemblies_usorted, "mscorlib,");
+            addAssemblieByName(assemblies_usorted, "System,");
+            addAssemblieByName(assemblies_usorted, "System.Core,");
+            foreach (Assembly assembly in assemblies_usorted)
             {
-                assemblies.Add(assembly);
+                if (!assemblies.Contains(assembly))
+                {
+                    assemblies.Add(assembly);
+                }
             }
 
-			this.luaEnv=luaenv;
+            this.luaEnv=luaenv;
             objectCasters = new ObjectCasters(this);
             objectCheckers = new ObjectCheckers(this);
             methodWrapsCache = new MethodWrapsCache(this, objectCheckers, objectCasters);
@@ -257,7 +281,7 @@ namespace XLua
                 List<Type> cs_call_lua = new List<Type>();
                 foreach (var type in Utils.GetAllTypes())
                 {
-                    if (!type.IsInterface && typeof(GenConfig).IsAssignableFrom(type))
+                    if (!type.IsInterface() && typeof(GenConfig).IsAssignableFrom(type))
                     {
                         var cfg = Activator.CreateInstance(type) as GenConfig;
                         if (cfg.CSharpCallLua != null)
@@ -293,11 +317,11 @@ namespace XLua
                     }
                 }
                 IEnumerable<IGrouping<MethodInfo, Type>> groups = (from type in cs_call_lua
-                              where typeof(Delegate).IsAssignableFrom(type)
+                              where typeof(Delegate).IsAssignableFrom(type) && type != typeof(Delegate) && type != typeof(MulticastDelegate)
                               where !type.GetMethod("Invoke").GetParameters().Any(paramInfo => paramInfo.ParameterType.IsGenericParameter)
                                select type).GroupBy(t => t.GetMethod("Invoke"), new CompareByArgRet());
 
-                ce.SetGenInterfaces(cs_call_lua.Where(type=>type.IsInterface).ToList());
+                ce.SetGenInterfaces(cs_call_lua.Where(type=>type.IsInterface()).ToList());
                 delegate_birdge_type = ce.EmitDelegateImpl(groups);
             }
 #endif
@@ -515,16 +539,38 @@ namespace XLua
             typeIdMap.Add(typeof(LuaCSFunction), type_id);
         }
 		
-		internal Type FindType(string className)
+		internal Type FindType(string className, bool isQualifiedName = false)
 		{
-			foreach(Assembly assembly in assemblies)
+            foreach (Assembly assembly in assemblies)
 			{
                 Type klass = assembly.GetType(className);
-				if(klass!=null)
+
+                if (klass!=null)
 				{
 					return klass;
 				}
 			}
+            int p1 = className.IndexOf('[');
+            if (p1 > 0 && !isQualifiedName)
+            {
+                string qualified_name = className.Substring(0, p1 + 1);
+                string[] generic_params = className.Substring(p1 + 1, className.Length - qualified_name.Length - 1).Split(',');
+                for(int i = 0; i < generic_params.Length; i++)
+                {
+                    Type generic_param = FindType(generic_params[i].Trim());
+                    if (generic_param == null)
+                    {
+                        return null;
+                    }
+                    if (i != 0 )
+                    {
+                        qualified_name += ", ";
+                    }
+                    qualified_name = qualified_name + "[" + generic_param.AssemblyQualifiedName + "]";
+                }
+                qualified_name += "]";
+                return FindType(qualified_name, true);
+            }
 			return null;
 		}
 
@@ -552,7 +598,7 @@ namespace XLua
                 {
                     int obj_index;
                     //lua gc是先把weak table移除后再调用__gc，这期间同一个对象可能再次push到lua，关联到新的index
-                    bool is_enum = o.GetType().IsEnum;
+                    bool is_enum = o.GetType().IsEnum();
                     if ((is_enum ? enumMap.TryGetValue(o, out obj_index) : reverseMap.TryGetValue(o, out obj_index))
                         && obj_index == obj_index_to_collect)
                     {
@@ -702,12 +748,15 @@ namespace XLua
             }
             return ret;
         }
-#if UNITY_EDITOR
+#if UNITY_EDITOR || XLUA_GENERAL
         public void PushParams(RealStatePtr L, Array ary)
         {
-            for(int i = 0; i < ary.Length; i++)
+            if (ary != null)
             {
-                PushAny(L, ary.GetValue(i));
+                for (int i = 0; i < ary.Length; i++)
+                {
+                    PushAny(L, ary.GetValue(i));
+                }
             }
         }
 #endif
@@ -783,7 +832,7 @@ namespace XLua
                     LuaAPI.xlua_rawseti(L, -2, 1);
                     LuaAPI.lua_pop(L, 1);
 
-                    if (type.IsValueType)
+                    if (type.IsValueType())
                     {
                         typeMap.Add(type_id, type);
                     }
@@ -847,7 +896,7 @@ namespace XLua
             }
 
             Type type = o.GetType();
-            if (type.IsPrimitive)
+            if (type.IsPrimitive())
             {
                 pushPrimitive(L, o);
             }
@@ -927,7 +976,7 @@ namespace XLua
 
         public void Push(RealStatePtr L, LuaCSFunction o)
         {
-            if (o.Method.IsStatic && Attribute.IsDefined(o.Method, typeof(MonoPInvokeCallbackAttribute)))
+            if (Utils.IsStaticPInvokeCSFunction(o))
             {
                 LuaAPI.lua_pushstdcallcfunction(L, o);
             }
@@ -960,8 +1009,13 @@ namespace XLua
 
             int index = -1;
             Type type = o.GetType();
+#if !UNITY_WSA || UNITY_EDITOR
             bool is_enum = type.IsEnum;
             bool is_valuetype = type.IsValueType;
+#else
+            bool is_enum = type.GetTypeInfo().IsEnum;
+            bool is_valuetype = type.GetTypeInfo().IsValueType;
+#endif
             bool needcache = !is_valuetype || is_enum;
             if (needcache && (is_enum ? enumMap.TryGetValue(o, out index) : reverseMap.TryGetValue(o, out index)))
             {
@@ -1062,7 +1116,8 @@ namespace XLua
 #if !UNITY_5 && !XLUA_GENERAL
                 if (obj != null && obj is UnityEngine.Object && ((obj as UnityEngine.Object) == null))
                 {
-                    throw new UnityEngine.MissingReferenceException("The object of type '"+ obj.GetType().Name +"' has been destroyed but you are still trying to access it.");
+                    //throw new UnityEngine.MissingReferenceException("The object of type '"+ obj.GetType().Name +"' has been destroyed but you are still trying to access it.");
+                    return null;
                 }
 #endif
                 return obj;
