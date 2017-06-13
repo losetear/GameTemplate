@@ -13,7 +13,8 @@ namespace GameTemplate
 
         public void InitUrls(Action<bool> cb)
         {
-            StartCoroutine(DownLoad(FileUrl, delegate(WWW file)
+#if !SkipUrl
+            StartCoroutine(DownLoad(FileUrl, delegate (WWW file)
             {
                 if (string.IsNullOrEmpty(file.text))
                 {
@@ -26,6 +27,10 @@ namespace GameTemplate
                     cb(true);
                 }
             }));
+#else
+            Urls = new Dictionary<String, ServerUrlPack>();
+            cb(true);
+#endif
         }
 
         private IEnumerator DownLoad(string url, Action<WWW> finishFun)
