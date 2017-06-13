@@ -64,9 +64,6 @@ public class BuildScript
 		case BuildTarget.StandaloneOSXIntel64:
 		case BuildTarget.StandaloneOSXUniversal:
 			return "/test.app";
-		case BuildTarget.WebPlayer:
-		case BuildTarget.WebPlayerStreamed:
-			return "";
 			// Add more build targets for your own.
 		default:
 			Debug.Log("Target not implemented.");
