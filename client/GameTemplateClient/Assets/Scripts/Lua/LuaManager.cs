@@ -75,6 +75,7 @@ namespace GameTemplate
 
         private void InitMain()
         {
+            Debug.Log("进入lua 主逻辑 main");
             LuaEnv.DoString("require 'Main'");
         }
 

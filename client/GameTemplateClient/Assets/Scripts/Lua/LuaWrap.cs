@@ -13,6 +13,16 @@ using Object = UnityEngine.Object;
 namespace GameTemplate
 {
     [LuaCallCSharp]
+    [ReflectionUse]
+    public static class UnityEngineObjectExtention
+    {
+        public static bool IsNull(this UnityEngine.Object o) // 或者名字叫IsDestroyed等等
+        {
+            return o == null;
+        }
+    }
+
+    [LuaCallCSharp]
     public class LuaWrap : MonoBehaviour
     {
         private void Awake()
@@ -34,11 +44,6 @@ namespace GameTemplate
         }
 
         #region Common
-
-        public bool IsNull(Object obj)
-        {
-            return obj == null;
-        }
 
 #if LuaDebug
         public bool LuaDebug = true;

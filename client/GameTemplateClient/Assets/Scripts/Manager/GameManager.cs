@@ -48,6 +48,7 @@ namespace GameTemplate
             gameObject.AddComponent<DownloadManager>();
             gameObject.AddComponent<CacheManager>();
             gameObject.AddComponent<LuaWrap>();
+            gameObject.AddComponent<NetManager>();
         }
 
         private void InitOthers()
