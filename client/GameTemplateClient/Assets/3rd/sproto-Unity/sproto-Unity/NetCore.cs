@@ -59,7 +59,7 @@ public class NetCore
         }
         else
         {
-            Debug.Log("Connect Timeout");
+            Debug.LogError("Connect Timeout");
         }
     }
 

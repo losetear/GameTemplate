@@ -20,7 +20,8 @@ namespace GameTemplate
             typeof (Action<int, GameObject>),
             typeof (Action<AudioClip>),
             typeof (UnityEngine.Hash128),
-            typeof (Action<bool>)
+            typeof (Action<bool>),
+            typeof (SocketConnected),
         };
 
         private static readonly List<Type> CustomTypes = new List<Type>();
