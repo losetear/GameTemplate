@@ -44,9 +44,11 @@ namespace GameTemplate
             gameObject.AddComponent<DataBaseSystem>();
             gameObject.AddComponent<UIManager>();
             gameObject.AddComponent<LuaManager>();
+#if !SkipAssetBundles
             gameObject.AddComponent<ResourcesManager>();
             gameObject.AddComponent<DownloadManager>();
             gameObject.AddComponent<CacheManager>();
+#endif
             gameObject.AddComponent<LuaWrap>();
             gameObject.AddComponent<NetManager>();
         }
@@ -60,9 +62,13 @@ namespace GameTemplate
             {
                 if (success)
                 {
+#if !SkipAssetBundles
                     io.download.InitRelativePath();
                     io.ui.ShowLocalUI("LocalLoading", true);
                     io.res.LoadAssetbundle(AssetBundleType.UI.ToString());
+#else
+                    Messenger.Broadcast(XEvent.FinishLoading);
+#endif
                 }
                 else
                 {
