@@ -16,3 +16,10 @@ var/
 /art/Arts/*.csproj
 /art/Arts/*.sln
 /art/Arts/*.suo
+/client/GameTemplateClient/build/build64
+/client/GameTemplateClient/build/build32
+/client/GameTemplateClient/*.csproj
+/client/GameTemplateClient/*.csproj
+/client/GameTemplateClient/*.csproj
+/client/GameTemplateClient/*.sln
+/client/GameTemplateClient/.vs
